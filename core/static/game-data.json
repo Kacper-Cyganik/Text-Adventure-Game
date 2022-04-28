@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "text": "You wake up in a strange place and you see a strange sword.",
+    "options": [
+      {
+        "text": "Take it",
+        "setState": [{ "magicSword": true }],
+        "nextText": 2
+      },
+      {
+        "text": "Don't take it",
+        "nextText": 2
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "text": "You wake up in a strange place and you see a strange sword.",
+    "options": [
+      {
+        "text": "Take it",
+        "setState": [{"magicSword": true} ],
+        "nextText": 2
+      },
+      {
+        "text": "Don't take it",
+        "nextText": 2
+      }
+    ]
+  }
+]

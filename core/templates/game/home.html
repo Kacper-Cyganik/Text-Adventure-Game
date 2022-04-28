@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %} Game {% endblock title %}
 {% block content %}
@@ -11,8 +12,15 @@
         <button class="btn">Option 2</button>
         <button class="btn">Option 3</button>
         <button class="btn">Option 4</button>
-
+        
     </div>
 </div>
 {% endblock content %}
+
+{% block scripts %}
+    {{ game_data |json_script:"game_data" }}
+    
+    <script src="{% static 'main.js' %}">
+    </script> 
+{% endblock scripts%}
 
