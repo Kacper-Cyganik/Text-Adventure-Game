@@ -33,10 +33,7 @@ function showOption(option) {
   if (option.requiredState == null) {
     return true;
   }
-  //console.log(option.requiredState)
-  //console.log(state)
   for (var propt in option.requiredState) {
-    //console.log(propt, option.requiredState[propt]);
     if (state.hasOwnProperty(propt) === false) {
       return false;
     } else if (state[propt] !== option.requiredState[propt]) {
