@@ -20,7 +20,7 @@
     "options": [
       {
         "text": "Take it",
-        "setState": [{"magicSword": true} ],
+        "setState": [ {"magicSword": true} ],
         "nextText": 2
       },
       {
