@@ -2,7 +2,7 @@ const textElement = document.getElementById("text");
 const optionButtonsElement = document.getElementById("option-btns");
 
 const gameData = JSON.parse(document.getElementById("game_data").textContent);
-var textNodes = JSON.parse(gameData)
+const textNodes = JSON.parse(gameData)
 
 let state = {};
 
