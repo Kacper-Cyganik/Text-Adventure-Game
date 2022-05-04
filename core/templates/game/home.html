@@ -18,7 +18,8 @@
 {% endblock content %}
 
 {% block scripts %}
-    {{ game_data |json_script:"game_data" }}
+    {{ character_state | json_script:"character_state" }}
+    {{ paragraph | json_script:"paragraph" }}
     
     <script src="{% static 'main.js' %}">
     </script> 

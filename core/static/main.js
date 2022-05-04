@@ -1,35 +1,87 @@
 const textElement = document.getElementById("text");
 const optionButtonsElement = document.getElementById("option-btns");
 
-const gameData = JSON.parse(document.getElementById("game_data").textContent);
-const textNodes = JSON.parse(gameData)
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      // Does this cookie string begin with the name we want?
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+const csrftoken = getCookie("csrftoken");
 
-let state = {};
-
-function startGame() {
-  state = {};
-  showTextNode(1);
+async function getGameData() {
+  try {
+    let res = await fetch("/get-current-game-state", {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+    });
+    return await res.json();
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-function showTextNode(textNodeIndex) {
-  const textNode = textNodes.find((textNode) => textNode.id === textNodeIndex);
-  textElement.innerText = textNode.text;
+async function updateGameData(state, nextTextNodeId) {
+  console.log(state);
+  console.log("------x------");
+  console.log(nextTextNodeId);
+  try {
+    let res = await fetch("/update-game-state", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest", //Necessary to work with request.is_ajax()
+        "X-CSRFToken": csrftoken,
+      },
+      body: JSON.stringify({ next_node: nextTextNodeId, player_state: state }), //JavaScript object of data to POST
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {});
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function showTextNode() {
+  const gameData = await getGameData();
+  // paragraph
+  const currentParagraph = JSON.parse(gameData.paragraph);
+  //console.log(currentParagraph)
+  // character state
+  var state = JSON.parse(gameData.character_state);
+
+  textElement.innerText = currentParagraph.text;
   while (optionButtonsElement.firstChild) {
     optionButtonsElement.removeChild(optionButtonsElement.firstChild);
   }
 
-  textNode.options.forEach((option) => {
-    if (showOption(option)) {
+  currentParagraph.options.forEach((option) => {
+    if (showOption(state, option)) {
       const button = document.createElement("button");
       button.innerText = option.text;
       button.classList.add("btn");
-      button.addEventListener("click", () => selectOption(option));
+      button.addEventListener("click", () => selectOption(state, option));
       optionButtonsElement.appendChild(button);
     }
   });
 }
 
-function showOption(option) {
+function showOption(state, option) {
   if (option.requiredState == null) {
     return true;
   }
@@ -43,13 +95,14 @@ function showOption(option) {
   return true;
 }
 
-function selectOption(option) {
+function selectOption(state, option) {
   const nextTextNodeId = option.nextText;
   if (nextTextNodeId <= 0) {
-    return startGame();
+    //return startGame();
+    //Do something to start, new url
   }
-  state = Object.assign(state, option.setState);
+  updateGameData(state, nextTextNodeId);
   showTextNode(nextTextNodeId);
 }
 
-startGame();
+showTextNode();
