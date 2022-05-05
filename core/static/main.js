@@ -34,9 +34,6 @@ async function getGameData() {
 }
 
 async function updateGameData(state, nextTextNodeId) {
-  console.log(state);
-  console.log("------x------");
-  console.log(nextTextNodeId);
   try {
     let res = await fetch("/update-game-state", {
       method: "POST",
@@ -47,11 +44,8 @@ async function updateGameData(state, nextTextNodeId) {
         "X-CSRFToken": csrftoken,
       },
       body: JSON.stringify({ next_node: nextTextNodeId, player_state: state }), //JavaScript object of data to POST
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {});
+    });
+    return await res.json();
   } catch (error) {
     console.log(error);
   }
@@ -61,9 +55,14 @@ async function showTextNode() {
   const gameData = await getGameData();
   // paragraph
   const currentParagraph = JSON.parse(gameData.paragraph);
-  //console.log(currentParagraph)
   // character state
   var state = JSON.parse(gameData.character_state);
+
+  console.log("------------");
+  console.log(Math.random());
+  console.log(currentParagraph);
+  console.log(state);
+  console.log("------------");
 
   textElement.innerText = currentParagraph.text;
   while (optionButtonsElement.firstChild) {
@@ -72,10 +71,12 @@ async function showTextNode() {
 
   currentParagraph.options.forEach((option) => {
     if (showOption(state, option)) {
+
       const button = document.createElement("button");
       button.innerText = option.text;
       button.classList.add("btn");
-      button.addEventListener("click", () => selectOption(state, option));
+      button.addEventListener("click", ()=>selectOption(state, option));
+      //utton.addEventListener("click", test_button);
       optionButtonsElement.appendChild(button);
     }
   });
@@ -95,14 +96,28 @@ function showOption(state, option) {
   return true;
 }
 
-function selectOption(state, option) {
-  const nextTextNodeId = option.nextText;
-  if (nextTextNodeId <= 0) {
-    //return startGame();
-    //Do something to start, new url
-  }
-  updateGameData(state, nextTextNodeId);
-  showTextNode(nextTextNodeId);
+function test_button(){
+  console.log('Hello')
 }
+
+async function selectOption(state, option) {
+  const nextTextNodeId = option.nextText;
+  console.log("#####");
+  console.log("next text node id: " + nextTextNodeId);
+  console.log("hero state is:")
+  console.log(state)
+  console.log("#####");
+  if (nextTextNodeId <= 0) {
+    console.log("lesser than 0" + nextTextNodeId)
+    // End of the game
+    await updateGameData({}, 1);
+  } else {
+    state = Object.assign(state, option.setState)
+    await updateGameData(state, nextTextNodeId);
+  }
+  showTextNode();
+}
+
+// ------------------------------------------------------
 
 showTextNode();
