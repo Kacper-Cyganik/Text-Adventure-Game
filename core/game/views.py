@@ -9,13 +9,7 @@ from .utils import find_paragraph_by_index
 
 @login_required
 def home(request):
-    current_game_state = GameState.objects.get(player=request.user)
-
-    paragraph_to_send = find_paragraph_by_index(current_game_state.current_paragraph)
-    character_state = current_game_state.character_state
-
-    # print(paragraph_to_send, character_state)
-    return render(request, 'game/home.html', {'paragraph': paragraph_to_send, 'character_state': character_state})
+    return render(request, 'game/home.html')
 
 
 def update_game_state(request):
