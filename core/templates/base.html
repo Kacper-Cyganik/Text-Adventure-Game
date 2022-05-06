@@ -22,18 +22,32 @@
   </head>
 
   <body>
-    <div class="topnav">
-      <a class="active" href="{% url 'home' %}">Home</a>
-      <a href="#">About</a>
-
-      {% if user.is_authenticated %}
-      <a href="{% url 'profile' %}">Profile</a>
-      <a href="{% url 'logout' %}">Logout</a>
-      {% else %}
-      <a href="{% url 'login' %}">Login</a>
-      <a href="{% url 'register' %}">Register</a>
-    {% endif %}
-    </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href="#">DjangoAdventure</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link active" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
+          {% if user.is_authenticated %}
+           <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
+           <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+          {% else %}
+           <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
+           <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
 
     <div>{% block content %} {% endblock %}</div>
 
