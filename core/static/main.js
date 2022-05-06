@@ -102,11 +102,7 @@ function test_button(){
 
 async function selectOption(state, option) {
   const nextTextNodeId = option.nextText;
-  console.log("#####");
-  console.log("next text node id: " + nextTextNodeId);
-  console.log("hero state is:")
-  console.log(state)
-  console.log("#####");
+
   if (nextTextNodeId <= 0) {
     console.log("lesser than 0" + nextTextNodeId)
     // End of the game

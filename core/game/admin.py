@@ -1,4 +1,4 @@
 from django.contrib import admin
-from .models import GameState
+from .models import SaveSlot
 
-admin.site.register(GameState)
+admin.site.register(SaveSlot)
