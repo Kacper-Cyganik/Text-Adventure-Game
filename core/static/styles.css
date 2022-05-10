@@ -33,3 +33,7 @@ body {
 .btn:hover {
   border-color: black;
 }
+
+.btn-save-slot {
+  background-color: red;
+}

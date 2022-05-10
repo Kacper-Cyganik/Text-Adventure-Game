@@ -1,11 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 from PIL import Image
+from game.models import SaveSlot
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     image = models.ImageField(default='registration/default.jpg', upload_to='registration/profile_pics', null=True)
-
+    active_slot = models.OneToOneField(SaveSlot, on_delete=models.SET_NULL, null=True, blank=True)
     def __str__(self):
         return f'{self.user.username} Profile'
 

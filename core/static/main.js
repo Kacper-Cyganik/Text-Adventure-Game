@@ -20,7 +20,40 @@ const csrftoken = getCookie("csrftoken");
 
 async function getGameData() {
   try {
-    let res = await fetch("/get-current-game-state", {
+    let res = await fetch("/game/get-current-game-state", {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+    });
+    return await res.json();
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function updateSaveSlot(slot_id) {
+  try {
+    let res = await fetch("/game/update-save-slot", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+        "X-CSRFToken": csrftoken,
+      },
+      body: JSON.stringify({ save_slot_id: slot_id }),
+    });
+    return await res.json();
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function getSaveSlots() {
+  try {
+    let res = await fetch("/game/get-save-slots", {
       method: "GET",
       headers: {
         Accept: "application/json",
@@ -35,7 +68,7 @@ async function getGameData() {
 
 async function updateGameData(state, nextTextNodeId) {
   try {
-    let res = await fetch("/update-game-state", {
+    let res = await fetch("/game/update-game-state", {
       method: "POST",
       credentials: "same-origin",
       headers: {
@@ -49,20 +82,16 @@ async function updateGameData(state, nextTextNodeId) {
   } catch (error) {
     console.log(error);
   }
+  showTextNode();
 }
 
 async function showTextNode() {
+  console.log("Trigger showTextNode");
   const gameData = await getGameData();
   // paragraph
   const currentParagraph = JSON.parse(gameData.paragraph);
   // character state
   var state = JSON.parse(gameData.character_state);
-
-  console.log("------------");
-  console.log(Math.random());
-  console.log(currentParagraph);
-  console.log(state);
-  console.log("------------");
 
   textElement.innerText = currentParagraph.text;
   while (optionButtonsElement.firstChild) {
@@ -71,12 +100,10 @@ async function showTextNode() {
 
   currentParagraph.options.forEach((option) => {
     if (showOption(state, option)) {
-
       const button = document.createElement("button");
       button.innerText = option.text;
       button.classList.add("btn");
-      button.addEventListener("click", ()=>selectOption(state, option));
-      //utton.addEventListener("click", test_button);
+      button.addEventListener("click", () => selectOption(state, option));
       optionButtonsElement.appendChild(button);
     }
   });
@@ -96,24 +123,38 @@ function showOption(state, option) {
   return true;
 }
 
-function test_button(){
-  console.log('Hello')
-}
+async function showSaveSlotOptions() {
+  const saveSlotData = await getSaveSlots();
+  const saveSlots = JSON.parse(saveSlotData.saveSlotData);
 
+
+  //
+  textElement.innerText = "Choose save slot";
+  while (optionButtonsElement.firstChild) {
+    optionButtonsElement.removeChild(optionButtonsElement.firstChild);
+  }
+  saveSlots.forEach((text) => {
+    const button = document.createElement("button");
+    button.innerText = `Save: ${text.saveSlotId} \nLast played: ${text.lastModified}`;
+    button.classList.add("btn-save-slot");
+    button.addEventListener("click", () => updateSaveSlot(text.saveSlotId).then(showTextNode));
+    optionButtonsElement.appendChild(button);
+  });
+}
 async function selectOption(state, option) {
   const nextTextNodeId = option.nextText;
 
   if (nextTextNodeId <= 0) {
-    console.log("lesser than 0" + nextTextNodeId)
+    console.log("lesser than 0" + nextTextNodeId);
     // End of the game
     await updateGameData({}, 1);
   } else {
-    state = Object.assign(state, option.setState)
+    state = Object.assign(state, option.setState);
     await updateGameData(state, nextTextNodeId);
   }
   showTextNode();
 }
 
-// ------------------------------------------------------
+// -------------------
 
-showTextNode();
+showSaveSlotOptions();
