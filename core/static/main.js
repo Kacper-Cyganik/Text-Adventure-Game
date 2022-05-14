@@ -1,6 +1,10 @@
 const textElement = document.getElementById("text");
 const optionButtonsElement = document.getElementById("option-btns");
 
+const chooseSaveSlotBtn = document.getElementById("choose-save-slot-btn");
+
+
+
 function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== "") {
@@ -17,6 +21,16 @@ function getCookie(name) {
   return cookieValue;
 }
 const csrftoken = getCookie("csrftoken");
+
+function setCookie(name, value, days) {
+  var expires = "";
+  if (days) {
+    var date = new Date();
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
 
 async function getGameData() {
   try {
@@ -86,7 +100,6 @@ async function updateGameData(state, nextTextNodeId) {
 }
 
 async function showTextNode() {
-  console.log("Trigger showTextNode");
   const gameData = await getGameData();
   // paragraph
   const currentParagraph = JSON.parse(gameData.paragraph);
@@ -127,7 +140,6 @@ async function showSaveSlotOptions() {
   const saveSlotData = await getSaveSlots();
   const saveSlots = JSON.parse(saveSlotData.saveSlotData);
 
-
   //
   textElement.innerText = "Choose save slot";
   while (optionButtonsElement.firstChild) {
@@ -137,7 +149,12 @@ async function showSaveSlotOptions() {
     const button = document.createElement("button");
     button.innerText = `Save: ${text.saveSlotId} \nLast played: ${text.lastModified}`;
     button.classList.add("btn-save-slot");
-    button.addEventListener("click", () => updateSaveSlot(text.saveSlotId).then(showTextNode));
+    button.addEventListener("click", () => {
+      updateSaveSlot(text.saveSlotId)
+        .then(setCookie("currentSaveSlot", text.saveSlotId, 1))
+        .then(showTextNode);
+    });
+
     optionButtonsElement.appendChild(button);
   });
 }
@@ -145,8 +162,6 @@ async function selectOption(state, option) {
   const nextTextNodeId = option.nextText;
 
   if (nextTextNodeId <= 0) {
-    console.log("lesser than 0" + nextTextNodeId);
-    // End of the game
     await updateGameData({}, 1);
   } else {
     state = Object.assign(state, option.setState);
@@ -156,5 +171,11 @@ async function selectOption(state, option) {
 }
 
 // -------------------
+chooseSaveSlotBtn.addEventListener("click", showSaveSlotOptions);
 
-showSaveSlotOptions();
+var currentSaveSlot = getCookie("currentSaveSlot");
+if (currentSaveSlot == null) {
+  showSaveSlotOptions();
+} else {
+  showTextNode();
+}
